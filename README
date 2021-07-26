@@ -1,0 +1,6 @@
+-Install Rust
+-Install Postgres 13, restarting was needed on windows
+-cargo install diesel_cli --no-default-features --features postgres
+-diesel database setup
+-diesel migration redo
+-cargo run

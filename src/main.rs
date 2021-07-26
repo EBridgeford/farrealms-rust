@@ -2,12 +2,11 @@
 extern crate diesel;
 extern crate dotenv;
 
-mod graphql_schema;
+mod models;
 mod schema;
 
-use graphql_schema::{create_schema,create_context, Schema, Context};
+use self::models::{create_context, create_schema, Context, Schema};
 use rocket::{response::content, Rocket, State};
-
 
 #[rocket::get("/")]
 fn graphiql() -> content::Html<String> {
@@ -15,21 +14,21 @@ fn graphiql() -> content::Html<String> {
 }
 
 #[rocket::get("/graphql?<request>")]
-fn get_graphql_handler(
+async fn get_graphql_handler(
     context: &State<Context>,
     request: juniper_rocket::GraphQLRequest,
     schema: &State<Schema>,
 ) -> juniper_rocket::GraphQLResponse {
-    request.execute_sync(&*schema, &*context)
+    request.execute(&*schema, &*context).await
 }
 
 #[rocket::post("/graphql", data = "<request>")]
-fn post_graphql_handler(
+async fn post_graphql_handler(
     context: &State<Context>,
     request: juniper_rocket::GraphQLRequest,
     schema: &State<Schema>,
 ) -> juniper_rocket::GraphQLResponse {
-    request.execute_sync(&*schema.inner(), &*context)
+    request.execute(&*schema.inner(), &*context).await
 }
 
 #[rocket::main]
